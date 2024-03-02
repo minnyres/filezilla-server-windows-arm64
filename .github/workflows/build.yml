@@ -12,9 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       llvm_path: "${{ github.workspace }}/llvm-mingw"
-      libfilezilla_version: "0.45.0"
+      libfilezilla_version: "0.46.0"
       libfilezilla_path: "${{ github.workspace }}/libfilezilla-windows-arm64"
-      filezilla_server_version: "1.8.0"
+      filezilla_server_version: "1.8.1"
       filezilla_server_path: "${{ github.workspace }}/filezilla-server-windows-arm64"
       wxwidgets_version: "3.2.4"
       wxwidgets_path: "${{ github.workspace }}/wxmsw-windows-arm64"

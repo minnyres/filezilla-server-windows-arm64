@@ -1,10 +1,7 @@
 name: Build for Windows ARM64
 
 on:
-  workflow_dispatch:
   push:
-    tags:
-    - '*'
 
 jobs:
   build-windows-arm64:
@@ -65,49 +62,10 @@ jobs:
           cd ${{ github.workspace }}/vcpkg/installed/arm64-mingw-static-release/lib
           ln -s libzlib.a libz.a
 
-      - name: Build wxwidgets
-        run: |
-          export PATH=${{ env.llvm_path }}/bin:$PATH
-          export PKG_CONFIG_PATH=${{ github.workspace }}/vcpkg/installed/arm64-mingw-static-release/lib/pkgconfig
-          export CPPFLAGS="-I${{ github.workspace }}/vcpkg/installed/arm64-mingw-static-release/include"
-          export LDFLAGS="-L${{ github.workspace }}/vcpkg/installed/arm64-mingw-static-release/lib"
-          wget https://github.com/wxWidgets/wxWidgets/releases/download/v${{ env.wxwidgets_version }}/wxWidgets-${{ env.wxwidgets_version }}.tar.bz2
-          tar xf wxWidgets-${{ env.wxwidgets_version }}.tar.bz2
-          cd wxWidgets-${{ env.wxwidgets_version }}
-          ./configure --host=${{ env.target }} --prefix=${{ env.wxwidgets_path }} --with-zlib=sys --with-msw --with-libiconv-prefix=${{ github.workspace }}/vcpkg/installed/arm64-mingw-static-release --disable-shared --disable-debug_flag --enable-optimise --enable-unicode
-          make -j$(nproc) && make install
-
-      - name: Build libfilezilla
-        run: |
-          export PATH=${{ env.llvm_path }}/bin:$PATH
-          export PKG_CONFIG_PATH=${{ github.workspace }}/vcpkg/installed/arm64-mingw-static-release/lib/pkgconfig
-          export CPPFLAGS="-I${{ github.workspace }}/vcpkg/installed/arm64-mingw-static-release/include"
-          export LDFLAGS="-L${{ github.workspace }}/vcpkg/installed/arm64-mingw-static-release/lib"
-          wget https://download.filezilla-project.org/libfilezilla/libfilezilla-${{ env.libfilezilla_version }}.tar.xz
-          tar xf libfilezilla-${{ env.libfilezilla_version }}.tar.xz
-          cd libfilezilla-${{ env.libfilezilla_version }}
-          ./configure --host=${{ env.target }} --prefix=${{ env.libfilezilla_path }} --disable-shared --enable-static 
-          make -j$(nproc) && make install
-
       - name: Build filezilla server
         run: |
-          export PATH=${{ env.llvm_path }}/bin:${{ env.wxwidgets_path }}/bin:$PATH
-          export PKG_CONFIG_PATH=${{ github.workspace }}/vcpkg/installed/arm64-mingw-static-release/lib/pkgconfig:${{ env.libfilezilla_path }}/lib/pkgconfig
-          export CPPFLAGS="-D STRSAFE_NO_DEPRECATE -I${{ github.workspace }}/vcpkg/installed/arm64-mingw-static-release/include -I${{ env.libfilezilla_path }}/include"
-          export LDFLAGS="--static -L${{ github.workspace }}/vcpkg/installed/arm64-mingw-static-release/lib -L${{ env.libfilezilla_path }}/lib"
-          wget https://download.filezilla-project.org/server/FileZilla_Server_${{ env.filezilla_server_version }}_src.tar.xz
-          tar xf FileZilla_Server_${{ env.filezilla_server_version }}_src.tar.xz
-          cd filezilla-server-${{ env.filezilla_server_version }}
-          ./configure --host=${{ env.target }} --prefix=${{ env.filezilla_server_path }} --disable-shared --enable-static --with-pugixml=builtin --with-wx-config=${{ env.wxwidgets_path }}/bin/wx-config
-          make -j$(nproc) 
-          sed -i 's/PROGRAMFILES"/PROGRAMFILES64"/g' pkg/windows/install.nsi
-          find . -name "*.exe" -exec ${{ env.target }}-strip {} \;
-          make pkg-exe
-          
-      - name: Prepare build artifacts
-        run: |
-          cp filezilla-server-${{ env.filezilla_server_version }}/pkg/windows/FileZilla_Server_${{ env.filezilla_server_version }}_win64-setup.exe \
-           ./FileZilla_Server_${{ env.filezilla_server_version }}_arm64-setup.exe
+          chmod 755 build.sh
+          ./build.sh arm64 
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3

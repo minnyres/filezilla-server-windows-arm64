@@ -16,6 +16,7 @@ jobs:
 
       - name: Install tools
         run: |
+          git config --global core.autocrlf true
           sudo apt update
           sudo apt install \
             gcc git cmake ninja-build nsis pkg-config p7zip libtool make colormake gettext automake autoconf autogen autopoint patch wx-common

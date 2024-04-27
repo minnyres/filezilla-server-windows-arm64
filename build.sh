@@ -42,33 +42,41 @@ gitclone="git clone --depth=1 --recursive"
 function gnumakeplusinstall {
     make -j $(nproc)
     make install
+    make clean
 }
 
 # Build wxwidgets
-wget https://github.com/wxWidgets/wxWidgets/releases/download/v${wxwidgets_version}/wxWidgets-${wxwidgets_version}.tar.bz2
-tar xf wxWidgets-${wxwidgets_version}.tar.bz2
-cd wxWidgets-${wxwidgets_version}
-./configure --host=$TARGET --prefix=${wxwidgets_path} --with-zlib=sys --with-msw --with-libiconv-prefix=$vcpkg_dir --disable-shared --disable-debug_flag --enable-optimise --enable-unicode
+[ -d wxWidgets ] || $gitclone --branch v$wxwidgets_version --recurse-submodules --depth 1 https://github.com/wxWidgets/wxWidgets.git
+pushd wxWidgets
+if [ $arch == "arm32" ]; then   
+    git apply ../patches/wx-fix-arm32-support.patch
+fi
+mkdir build-$TARGET
+cd build-$TARGET
+../configure --host=$TARGET --prefix=${wxwidgets_path} --with-zlib=sys --with-msw --with-libiconv-prefix=$vcpkg_dir --disable-shared --disable-debug_flag --enable-optimise --enable-unicode
 gnumakeplusinstall
+popd
 
 # Build libfilezilla
-wget https://download.filezilla-project.org/libfilezilla/libfilezilla-${libfilezilla_version}.tar.xz
+$wget https://download.filezilla-project.org/libfilezilla/libfilezilla-${libfilezilla_version}.tar.xz
 tar xf libfilezilla-${libfilezilla_version}.tar.xz
-cd libfilezilla-${libfilezilla_version}
+pushd libfilezilla-${libfilezilla_version}
 ./configure --host=$TARGET --prefix=${libfilezilla_path} --disable-shared --enable-static 
 gnumakeplusinstall
+popd
+rm -rf libfilezilla-${libfilezilla_version}
 
 # Build filezilla server
-wget https://download.filezilla-project.org/server/FileZilla_Server_${filezilla_server_version}_src.tar.xz
+$wget https://download.filezilla-project.org/server/FileZilla_Server_${filezilla_server_version}_src.tar.xz
 tar xf FileZilla_Server_${filezilla_server_version}_src.tar.xz
-cd filezilla-server-${filezilla_server_version}
+pushd filezilla-server-${filezilla_server_version}
 ./configure --host=$TARGET --prefix=${filezilla_server_path} --disable-shared --enable-static --with-pugixml=builtin --with-wx-config=${wxwidgets_path}/bin/wx-config
 gnumakeplusinstall
 find . -name "*.exe" -exec $TARGET-strip {} \;
 find $filezilla_server_path -name "*.exe" -exec $TARGET-strip {} \;
 
 if [ $arch == "arm32" ]; then   
-    cd ..
+    popd
     mkdir FileZilla_Server_${filezilla_server_version}
     cp $filezilla_server_path/bin/*.exe FileZilla_Server_${filezilla_server_version}
     7z a -mx9 FileZilla_Server_${filezilla_server_version}_arm32.7z  FileZilla_Server_${filezilla_server_version}
@@ -76,4 +84,7 @@ elif [ $arch == "arm64" ]; then
     sed -i 's/PROGRAMFILES"/PROGRAMFILES64"/g' pkg/windows/install.nsi
     make pkg-exe
     cp pkg/windows/FileZilla_Server_${filezilla_server_version}_win64-setup.exe ../FileZilla_Server_${filezilla_server_version}_arm64-setup.exe
+    popd
 fi
+
+rm -rf filezilla-server-${filezilla_server_version}

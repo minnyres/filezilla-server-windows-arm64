@@ -9,13 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       llvm_path: "${{ github.workspace }}/llvm-mingw"
-      libfilezilla_version: "0.46.0"
-      libfilezilla_path: "${{ github.workspace }}/libfilezilla-windows-arm64"
-      filezilla_server_version: "1.8.1"
-      filezilla_server_path: "${{ github.workspace }}/filezilla-server-windows-arm64"
-      wxwidgets_version: "3.2.4"
-      wxwidgets_path: "${{ github.workspace }}/wxmsw-windows-arm64"
-      target: "aarch64-w64-mingw32"
     
     steps:
       - name: Checkout repository
@@ -48,7 +41,9 @@ jobs:
           # tell vcpkg to only build Release variants of the dependencies
           mkdir triplets_overlay
           cp triplets/community/arm64-mingw-static.cmake triplets_overlay/arm64-mingw-static-release.cmake
+          cp triplets/community/arm-mingw-static.cmake triplets_overlay/arm-mingw-static-release.cmake
           echo "set(VCPKG_BUILD_TYPE release)" >> triplets_overlay/arm64-mingw-static-release.cmake
+          echo "set(VCPKG_BUILD_TYPE release)" >> triplets_overlay/arm-mingw-static-release.cmake
           # clear buildtrees after each package installation to reduce disk space requirements
           packages="libgnutls sqlite3"
           ./vcpkg upgrade \
@@ -59,19 +54,29 @@ jobs:
             --clean-after-build \
             --triplet=arm64-mingw-static-release \
             $packages
+          ./vcpkg install \
+            --overlay-triplets=triplets_overlay \
+            --clean-after-build \
+            --triplet=arm-mingw-static-release \
+            $packages
           cd ${{ github.workspace }}/vcpkg/installed/arm64-mingw-static-release/lib
+          ln -s libzlib.a libz.a
+          cd ${{ github.workspace }}/vcpkg/installed/arm-mingw-static-release/lib
           ln -s libzlib.a libz.a
 
       - name: Build filezilla server
         run: |
           chmod 755 build.sh
-          ./build.sh arm64 
+          ./build.sh arm64
+          ./build.sh arm32 
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
           name: filezilla_server_${{ env.filezilla_server_version }}_arm64
-          path: ./FileZilla_Server_${{ env.filezilla_server_version }}_arm64-setup.exe
+          path: |
+            ./FileZilla_Server*.exe
+            ./filezilla-server-windows*
 
       - name: Batch release
         uses: softprops/action-gh-release@v1
@@ -79,4 +84,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: ./FileZilla_Server_${{ env.filezilla_server_version }}_arm64-setup.exe
+          files: |
+            ./FileZilla_Server*.exe
+            ./FileZilla_Server*.7z

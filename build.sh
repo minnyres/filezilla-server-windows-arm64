@@ -64,7 +64,16 @@ tar xf FileZilla_Server_${filezilla_server_version}_src.tar.xz
 cd filezilla-server-${filezilla_server_version}
 ./configure --host=$TARGET --prefix=${filezilla_server_path} --disable-shared --enable-static --with-pugixml=builtin --with-wx-config=${wxwidgets_path}/bin/wx-config
 gnumakeplusinstall
-sed -i 's/PROGRAMFILES"/PROGRAMFILES64"/g' pkg/windows/install.nsi
 find . -name "*.exe" -exec $TARGET-strip {} \;
-make pkg-exe
-cp pkg/windows/FileZilla_Server_${filezilla_server_version}_win64-setup.exe ../FileZilla_Server_${filezilla_server_version}_arm64-setup.exe
+find $filezilla_server_path -name "*.exe" -exec $TARGET-strip {} \;
+
+if [ $arch == "arm32" ]; then   
+    cd ..
+    mkdir FileZilla_Server_${filezilla_server_version}
+    cp $filezilla_server_path/bin/*.exe FileZilla_Server_${filezilla_server_version}
+    7z a -mx9 FileZilla_Server_${filezilla_server_version}_arm32.7z  FileZilla_Server_${filezilla_server_version}
+elif [ $arch == "arm64" ]; then
+    sed -i 's/PROGRAMFILES"/PROGRAMFILES64"/g' pkg/windows/install.nsi
+    make pkg-exe
+    cp pkg/windows/FileZilla_Server_${filezilla_server_version}_win64-setup.exe ../FileZilla_Server_${filezilla_server_version}_arm64-setup.exe
+fi

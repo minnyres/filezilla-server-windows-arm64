@@ -75,16 +75,11 @@ gnumakeplusinstall
 find . -name "*.exe" -exec $TARGET-strip {} \;
 find $filezilla_server_path -name "*.exe" -exec $TARGET-strip {} \;
 
-if [ $arch == "arm32" ]; then   
-    popd
-    mkdir FileZilla_Server_${filezilla_server_version}
-    cp $filezilla_server_path/bin/*.exe FileZilla_Server_${filezilla_server_version}
-    7z a -mx9 FileZilla_Server_${filezilla_server_version}_arm32.7z  FileZilla_Server_${filezilla_server_version}
-elif [ $arch == "arm64" ]; then
+if [ $arch == "arm64" ]; then
     sed -i 's/PROGRAMFILES"/PROGRAMFILES64"/g' pkg/windows/install.nsi
     make pkg-exe
     cp pkg/windows/FileZilla_Server_${filezilla_server_version}_win64-setup.exe ../FileZilla_Server_${filezilla_server_version}_arm64-setup.exe
-    popd
 fi
 
+popd
 rm -rf filezilla-server-${filezilla_server_version}

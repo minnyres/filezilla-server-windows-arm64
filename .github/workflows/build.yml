@@ -87,4 +87,3 @@ jobs:
         with:
           files: |
             ./FileZilla_Server*.exe
-            ./FileZilla_Server*.7z

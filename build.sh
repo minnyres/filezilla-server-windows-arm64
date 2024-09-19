@@ -23,11 +23,11 @@ else
     exit -1
 fi
 
-libfilezilla_version=0.47.0
+libfilezilla_version=0.48.1
 libfilezilla_path=$PWD/libfilezilla-windows-$arch
-filezilla_server_version=1.8.2
+filezilla_server_version=1.9.1
 filezilla_server_path=$PWD/filezilla-server-windows-$arch
-wxwidgets_version=3.2.4
+wxwidgets_version=3.2.6
 wxwidgets_path=$PWD/wxmsw-windows-$arch
 
 export PATH=$llvm_dir/bin:$wxwidgets_path/bin:$PATH

@@ -26,6 +26,7 @@ fi
 libfilezilla_version=0.48.1
 libfilezilla_path=$PWD/libfilezilla-windows-$arch
 filezilla_server_version=1.9.1
+filezilla_server_sha512=2f61aec813254e32808ef579da36897164ee89ef365f5e0bdd2de92cae5ad3575b486a838cce35c00e697ed1a6c6b0b93918eec9ae9ac620777c418d9204f97e
 filezilla_server_path=$PWD/filezilla-server-windows-$arch
 wxwidgets_version=3.2.6
 wxwidgets_path=$PWD/wxmsw-windows-$arch
@@ -58,17 +59,19 @@ gnumakeplusinstall
 popd
 
 # Build libfilezilla
-$wget https://download.filezilla-project.org/libfilezilla/libfilezilla-${libfilezilla_version}.tar.xz
-tar xf libfilezilla-${libfilezilla_version}.tar.xz
+# $wget https://download.filezilla-project.org/libfilezilla/libfilezilla-${libfilezilla_version}.tar.xz
+svn co https://svn.filezilla-project.org/svn/libfilezilla/trunk@11169 libfilezilla-${libfilezilla_version}
 pushd libfilezilla-${libfilezilla_version}
+autoreconf -fi
 ./configure --host=$TARGET --prefix=${libfilezilla_path} --disable-shared --enable-static 
 gnumakeplusinstall
 popd
 rm -rf libfilezilla-${libfilezilla_version}
 
 # Build filezilla server
-$wget https://download.filezilla-project.org/server/FileZilla_Server_${filezilla_server_version}_src.tar.xz
-tar xf FileZilla_Server_${filezilla_server_version}_src.tar.xz
+# $wget https://download.filezilla-project.org/server/FileZilla_Server_${filezilla_server_version}_src.tar.xz
+sha512sum sources/FileZilla_Server_${filezilla_server_version}_src.tar.xz
+tar xf sources/FileZilla_Server_${filezilla_server_version}_src.tar.xz
 pushd filezilla-server-${filezilla_server_version}
 ./configure --host=$TARGET --prefix=${filezilla_server_path} --disable-shared --enable-static --with-pugixml=builtin --with-wx-config=${wxwidgets_path}/bin/wx-config
 gnumakeplusinstall

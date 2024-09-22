@@ -69,8 +69,7 @@ jobs:
         run: |
           chmod 755 build.sh
           ./build.sh arm64
-          ./build.sh arm32 
-
+          
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:

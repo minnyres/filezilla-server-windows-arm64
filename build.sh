@@ -27,7 +27,7 @@ libfilezilla_version=0.50.0
 libfilezilla_path=$PWD/libfilezilla-windows-$arch
 filezilla_server_version=1.10.1
 filezilla_server_path=$PWD/filezilla-server-windows-$arch
-wxwidgets_version=3.2.6
+wxwidgets_version=3.2.7
 wxwidgets_path=$PWD/wxmsw-windows-$arch
 
 export PATH=$llvm_dir/bin:$wxwidgets_path/bin:$PATH
@@ -48,9 +48,6 @@ function gnumakeplusinstall {
 # Build wxwidgets
 [ -d wxWidgets ] || $gitclone --branch v$wxwidgets_version --recurse-submodules --depth 1 https://github.com/wxWidgets/wxWidgets.git
 pushd wxWidgets
-if [ $arch == "arm32" ]; then   
-    git apply ../patches/wx-fix-arm32-support.patch
-fi
 mkdir build-$TARGET
 cd build-$TARGET
 ../configure --host=$TARGET --prefix=${wxwidgets_path} --with-zlib=sys --with-msw --with-libiconv-prefix=$vcpkg_dir --disable-shared --disable-debug_flag --enable-optimise --enable-unicode

@@ -23,7 +23,7 @@ else
     exit -1
 fi
 
-ibfilezilla_version=0.50.0
+libfilezilla_version=0.50.0
 libfilezilla_path=$PWD/libfilezilla-windows-$arch
 filezilla_server_version=1.10.1
 filezilla_server_path=$PWD/filezilla-server-windows-$arch

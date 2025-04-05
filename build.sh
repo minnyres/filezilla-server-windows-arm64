@@ -23,10 +23,9 @@ else
     exit -1
 fi
 
-# libfilezilla_version=0.48.1
+ibfilezilla_version=0.50.0
 libfilezilla_path=$PWD/libfilezilla-windows-$arch
-filezilla_server_version=1.9.4
-# filezilla_server_sha512=2f61aec813254e32808ef579da36897164ee89ef365f5e0bdd2de92cae5ad3575b486a838cce35c00e697ed1a6c6b0b93918eec9ae9ac620777c418d9204f97e
+filezilla_server_version=1.10.1
 filezilla_server_path=$PWD/filezilla-server-windows-$arch
 wxwidgets_version=3.2.6
 wxwidgets_path=$PWD/wxmsw-windows-$arch
@@ -59,8 +58,7 @@ gnumakeplusinstall
 popd
 
 # Build libfilezilla
-# $wget https://download.filezilla-project.org/libfilezilla/libfilezilla-${libfilezilla_version}.tar.xz
-svn co https://svn.filezilla-project.org/svn/libfilezilla/trunk@11192 libfilezilla-${libfilezilla_version}
+$wget https://sources.archlinux.org/other/libfilezilla/libfilezilla-${libfilezilla_version}.tar.xz
 pushd libfilezilla-${libfilezilla_version}
 autoreconf -fi
 ./configure --host=$TARGET --prefix=${libfilezilla_path} --disable-shared --enable-static 
@@ -69,10 +67,7 @@ popd
 rm -rf libfilezilla-${libfilezilla_version}
 
 # Build filezilla server
-# $wget https://download.filezilla-project.org/server/FileZilla_Server_${filezilla_server_version}_src.tar.xz
-# sha512sum sources/FileZilla_Server_${filezilla_server_version}_src.tar.xz
-# tar xf sources/FileZilla_Server_${filezilla_server_version}_src.tar.xz
-$wget "https://dl2.cdn.filezilla-project.org/server/FileZilla_Server_${filezilla_server_version}_src.tar.xz?h=5qaX_KQRNrDaOElYsoXz6A&x=1731856755" -O FileZilla_Server_${filezilla_server_version}_src.tar.xz
+$wget https://sourceforge.net/projects/fabiololix-os-archive/files/src/FileZilla_Server_${filezilla_server_version}_src.tar.xz
 tar xf FileZilla_Server_${filezilla_server_version}_src.tar.xz
 pushd filezilla-server-${filezilla_server_version}
 ./configure --host=$TARGET --prefix=${filezilla_server_path} --disable-shared --enable-static --with-pugixml=builtin --with-wx-config=${wxwidgets_path}/bin/wx-config

@@ -18,7 +18,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install \
-            gcc git cmake ninja-build nsis pkg-config p7zip libtool make colormake gettext automake autoconf autogen autopoint patch wx-common
+            gcc git cmake ninja-build nsis pkg-config p7zip libtool make colormake gettext automake autoconf autogen autopoint patch wx-common subversion 
           wget https://github.com/mstorsjo/llvm-mingw/releases/download/20231128/llvm-mingw-20231128-ucrt-ubuntu-20.04-x86_64.tar.xz
           tar -xf llvm-mingw-*.tar.xz
           rm llvm-mingw-*.tar.xz

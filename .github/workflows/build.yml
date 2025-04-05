@@ -29,14 +29,18 @@ jobs:
           7z x ExecDos.zip
           sudo cp  Plugins/i386-unicode/AccessControl.dll /usr/share/nsis/Plugins/x86-unicode/
           sudo cp  Plugins/x86-unicode/ExecDos.dll /usr/share/nsis/Plugins/x86-unicode/
-          git clone https://github.com/microsoft/vcpkg.git
-          cd vcpkg
-          ./bootstrap-vcpkg.sh
+
+      - name: Setup a new (or from cache) vcpkg (and does not build any package)
+        uses: lukka/run-vcpkg@v11 # Always specify the specific _version_ of the
+                                  # action you need, `v11` in this case to stay up
+                                  # to date with fixes on the v11 branch
+        with:
+          vcpkgGitCommitId: 'd5ec528843d29e3a52d745a64b469f810b2cedbf'
           
       - name: Install libraries from vcpkg
         run: |
           export PATH=${{ env.llvm_path }}/bin:$PATH
-          cd vcpkg
+          cd ${{ env.RUNVCPKG_VCPKG_ROOT }}
           sed -i 's/OPTIONS/OPTIONS\n--disable-hardware-acceleration/g' ports/libgnutls/portfile.cmake
           git apply ${{ github.workspace }}/patches/vcpkg-disable-asm-for-arm32.patch
           # tell vcpkg to only build Release variants of the dependencies
@@ -71,7 +75,7 @@ jobs:
           ./build.sh arm64
           
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: filezilla_server_${{ env.filezilla_server_version }}_arm64
           path: |
@@ -79,7 +83,7 @@ jobs:
             ./filezilla-server-windows*
 
       - name: Batch release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

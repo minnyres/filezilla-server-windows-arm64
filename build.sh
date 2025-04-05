@@ -56,6 +56,7 @@ popd
 
 # Build libfilezilla
 $wget https://sources.archlinux.org/other/libfilezilla/libfilezilla-${libfilezilla_version}.tar.xz
+tar xf libfilezilla-${libfilezilla_version}.tar.xz
 pushd libfilezilla-${libfilezilla_version}
 autoreconf -fi
 ./configure --host=$TARGET --prefix=${libfilezilla_path} --disable-shared --enable-static 
